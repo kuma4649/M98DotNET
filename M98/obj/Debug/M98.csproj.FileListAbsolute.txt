@@ -1,0 +1,9 @@
+D:\bootcamp\Source\Repos\M98\M98\obj\Debug\M98.csprojAssemblyReference.cache
+D:\bootcamp\Source\Repos\M98\M98\bin\Debug\M98.exe.config
+D:\bootcamp\Source\Repos\M98\M98\bin\Debug\M98.exe
+D:\bootcamp\Source\Repos\M98\M98\bin\Debug\M98.pdb
+D:\bootcamp\Source\Repos\M98\M98\obj\Debug\M98.exe
+D:\bootcamp\Source\Repos\M98\M98\obj\Debug\M98.pdb
+D:\bootcamp\Source\Repos\M98\M98\bin\Debug\M98DotNETcore.dll
+D:\bootcamp\Source\Repos\M98\M98\bin\Debug\M98DotNETcore.pdb
+D:\bootcamp\Source\Repos\M98\M98\obj\Debug\M98.csproj.CopyComplete

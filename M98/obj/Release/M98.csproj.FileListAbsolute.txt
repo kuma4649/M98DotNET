@@ -1,0 +1,6 @@
+D:\bootcamp\Source\Repos\M98\M98\bin\Release\M98.exe.config
+D:\bootcamp\Source\Repos\M98\M98\bin\Release\M98.exe
+D:\bootcamp\Source\Repos\M98\M98\bin\Release\M98.pdb
+D:\bootcamp\Source\Repos\M98\M98\obj\Release\M98.exe
+D:\bootcamp\Source\Repos\M98\M98\obj\Release\M98.pdb
+D:\bootcamp\Source\Repos\M98\M98\obj\Release\M98.csprojAssemblyReference.cache
