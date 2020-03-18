@@ -11,7 +11,6 @@ D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\bin\Debug\netstandard2.0\M98Dot
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\bin\Debug\netstandard2.0\M98DotNETcore.dll
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\bin\Debug\netstandard2.0\M98DotNETcore.pdb
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\bin\Debug\netstandard2.0\musicDriverInterface.dll
-D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98DotNETcore.csprojAssemblyReference.cache
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98DotNETcore.csproj.CoreCompileInputs.cache
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98DotNETcore.AssemblyInfoInputs.cache
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98DotNETcore.AssemblyInfo.cs
