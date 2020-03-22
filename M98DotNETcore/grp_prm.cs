@@ -14,7 +14,9 @@ namespace M98DotNETcore
 		public int[] qtz = new int[DEF.MAXQTZGR];
 		public int[] mac = new int[DEF.MAXMACGR];
 		public int[] kst = new int[DEF.MAXKSTGR];
-		public int[] ext = new int[DEF.MAXKSTGR];
+		public int[] ext = new int[DEF.MAXEXTGR];
+		public int[][] pan = new int[2][] { new int[DEF.MAXPANGR], new int[DEF.MAXPANGR] };
+
 		public void setnte(int a, int n) { if (a <= DEF.MAXNTEGR) nte[a] = n; }
 		public int getnte(int n) { return (nte[n]); }
 		public void clsnte()

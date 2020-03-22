@@ -22,6 +22,7 @@ namespace M98DotNETcore
         public const int MAXNTEGR = 127;    //ノートグループ数
         public const int MAXKSTGR = 127;    //キーシフトグループ数
         public const int MAXEXTGR = 127;    //連符グループ数
+        public const int MAXPANGR = 127;    //PANグループ数
         public const int MAXMACGR = 255;    //マクログループ数
         public const int MAXCOMP = 30;  //コマンドパラメータ数
         public const int MAXEXTEND = 192 + 1;   //連符の最大値

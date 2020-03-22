@@ -19,7 +19,7 @@ namespace M98DotNETcore
 		private int tie;        //タイ
 		private int ptm;        //ポルタメント
 		private int macro;      //macro
-		private int pan;        //panning
+		private int[] pan = new int[2];        //panning
 		private int ksift;      //key sift
 		private int clock;      //クロック
 		private int extend;     //連符の数
@@ -39,7 +39,7 @@ namespace M98DotNETcore
 		public int gettie() { return tie; }
 		public int getptm() { return ptm; }
 		public int getmac() { return macro; }
-		public int getpan() { return pan; }
+		public int getpan(int n) { return pan[n]; }
 		public int getkst() { return ksift; }
 		public int getclk() { return clock; }
 		public int getext() { return extend; }
@@ -53,7 +53,7 @@ namespace M98DotNETcore
 		public void puttie(int a) { tie = a; }
 		public void putptm(int a) { ptm = a; }
 		public void putmac(int a) { macro = a; }
-		public void putpan(int a) { pan = a; }
+		public void putpan(int index,int a) { pan[index] = a; }
 		public void putkst(int a) { ksift = a; }
 		public void putclk(int a) { clock = a; }
 		public void putext(int a) { extend = a; }
@@ -106,7 +106,7 @@ namespace M98DotNETcore
 			}
 		}
 
-		public void puttone(int nt, int qt, int ln, int ot, int vl, int vi, int ti, int pt, int mc, int pa, int ks,int clk, int ex)
+		public void puttone(int nt, int qt, int ln, int ot, int vl, int vi, int ti, int pt, int mc, int pa1, int pa2, int ks,int clk, int ex)
 		{
 			if (ln < gWork.wk.msl)
 			{
@@ -121,7 +121,8 @@ namespace M98DotNETcore
 			tie = ti;
 			ptm = pt;
 			macro = mc;
-			pan = pa;
+			pan[0] = pa1;
+			pan[1] = pa2;
 			ksift = ks;
 			clock = clk;
 			extend = ex;
@@ -138,7 +139,8 @@ namespace M98DotNETcore
 			tie = tONE.gettie();
 			ptm = tONE.getptm();
 			macro = tONE.getmac();
-			pan = tONE.getpan();
+			pan[0] = tONE.getpan(0);
+			pan[1] = tONE.getpan(1);
 			ksift = tONE.getkst();
 			clock = tONE.getclk();
 			extend = tONE.getext();

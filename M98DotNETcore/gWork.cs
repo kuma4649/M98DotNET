@@ -26,6 +26,7 @@ namespace M98DotNETcore
         public static int voigrf, lengrf = 0;
         public static int macgrf, ntegrf, qtzgrf = 0;
         public static int kstgrf, extgrf = 0;
+        public static int pangrf = 0;
 
         //------------------------------------------------------------------
         //バッファ、グローバル変数
@@ -64,7 +65,7 @@ namespace M98DotNETcore
 
         public static linedat[] mml;
 
-        public static compw wk = new compw(0, 4, 6, 255, 96, DEF.EMPTY, DEF.EMPTY, DEF.EMPTY, DEF.EMPTY, DEF.EMPTY);
+        public static compw wk = new compw(0, 4, 6, 255, 96, DEF.EMPTY, DEF.EMPTY, DEF.EMPTY, DEF.EMPTY, DEF.EMPTY, DEF.EMPTY);
 
 
         public static void setup(M98 m98)

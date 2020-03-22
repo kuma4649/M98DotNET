@@ -9,5 +9,7 @@ del /Q .\output\*.config
 copy .\CHANGE.txt .\output\
 copy .\README.md .\output\
 copy .\usage.txt .\output\
+copy .\m98コマンド・リファレンス.pdf .\output\
+copy .\M98.bat .\output\
 
 pause

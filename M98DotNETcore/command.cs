@@ -16,7 +16,7 @@ namespace M98DotNETcore
 				"@grpl","mgrpl","init","mask","maskl",
 				"select","selectl","egrp","sift","racc",
 				"maskext","PTMMODE","call","mcopy","DISABLE",
-				"ENABLE","limite","preserve","","",
+				"ENABLE","limite","preserve","pgrp","",
 				"","","","",""
 		};
 
@@ -32,7 +32,7 @@ namespace M98DotNETcore
 		public flag RL_FLAG;//rotate left
 		public string name = "";//コマンド名
 		public string[] sptr = new string[DEF.MAXCOMP];//ストリングパラメータのポインタ
-		public int[] prm = new int[DEF.MAXCOMP];//コマンドパラメータデータ
+		public int[][] prm = new int[2][] { new int[DEF.MAXCOMP], new int[DEF.MAXCOMP] };//コマンドパラメータデータ
 		public int spnum;//ストリングパラメータの数
 		public int pnum;//コマンドパラメータの数
 		public M98 m98;
@@ -43,7 +43,11 @@ namespace M98DotNETcore
 
 			allflgis(f);
 			name = "";//, '\0', DEF.MAXCOMNAME);
-			for (int i = 0; i < DEF.MAXCOMP; i++) prm[i] = 0;//, DEF.MAXCOMP);
+			for (int i = 0; i < DEF.MAXCOMP; i++)
+			{
+				prm[0][i] = 0;
+				prm[1][i] = 0;
+			}
 			spnum = pnum = 0;
 		}
 
@@ -87,7 +91,7 @@ namespace M98DotNETcore
 
 		public void call(ref string a, ref int aPtr)
 		{
-			if (CALL_FLAG == flag.ON) mg_com(ref a, ref aPtr, prm[0]);
+			if (CALL_FLAG == flag.ON) mg_com(ref a, ref aPtr, prm[0][0]);
 		}
 
 		public void rv()
@@ -143,12 +147,12 @@ namespace M98DotNETcore
 		//マクロコピー
 		private void mk_mcopy()
 		{
-			int l = Common.searchm(gWork.com.prm[0]);
+			int l = Common.searchm(gWork.com.prm[0][0]);
 			if (l == DEF.ERROR)
 			{
 				DEF.PF(string.Format(
 						"\n指定されたマクロナンバ({0})がない、またはマクロ行ではありません"
-						, gWork.com.prm[0]
+						, gWork.com.prm[0][0]
 						));
 				throw new M98Exception();
 			}
@@ -187,7 +191,7 @@ namespace M98DotNETcore
 					int o = gWork.cpyt[i].getoct();
 					int k = m98.nao2key(n, o);
 					//k=k+((random((smax-smin)+1)+smin)-sabun);
-					int rs = gWork.com.prm[gWork.random.Next(gWork.com.pnum)];
+					int rs = gWork.com.prm[0][gWork.random.Next(gWork.com.pnum)];
 					k = k + rs;
 					if (k > 95 || k < 0) k = 36;
 					m98.key2nao(k, out n, out o);
@@ -208,7 +212,7 @@ namespace M98DotNETcore
 							n = p.getnte();
 							o = p.getoct();
 							k = m98.nao2key(n, o);
-							k += gWork.com.prm[gWork.random.Next(gWork.com.pnum)];
+							k += gWork.com.prm[0][gWork.random.Next(gWork.com.pnum)];
 							if (k > 95 || k < 0) k = 36;
 							m98.key2nao(k, out n, out o);
 							p.putnte(n);
@@ -219,11 +223,11 @@ namespace M98DotNETcore
 				}
 				if (gWork.atr.fkst == flag.ON) //キーシフトの絶対シフト
 				{
-					gWork.cpyt[i].putkst(gWork.cpyt[i].getkst() + gWork.com.prm[gWork.random.Next(gWork.com.pnum)]);
+					gWork.cpyt[i].putkst(gWork.cpyt[i].getkst() + gWork.com.prm[0][gWork.random.Next(gWork.com.pnum)]);
 				}
 				if (gWork.atr.fmac == flag.ON) //マクロの絶対シフト
 				{
-					gWork.cpyt[i].putmac(gWork.cpyt[i].getmac() + gWork.com.prm[gWork.random.Next(gWork.com.pnum)]);
+					gWork.cpyt[i].putmac(gWork.cpyt[i].getmac() + gWork.com.prm[0][gWork.random.Next(gWork.com.pnum)]);
 				}
 			}
 		}
@@ -233,7 +237,7 @@ namespace M98DotNETcore
 		private void mk_rdprg(int x)
 		{
 			gWork.rndper = 100;//KUMA:必ず100%に初期化する
-			if (gWork.com.pnum > 0) gWork.rndper = gWork.com.prm[0];    //乱数確率を得る
+			if (gWork.com.pnum > 0) gWork.rndper = gWork.com.prm[0][0];    //乱数確率を得る
 
 			int i;
 			int y = -1;
@@ -272,7 +276,7 @@ namespace M98DotNETcore
 		private void mk_crprg(int x)
 		{
 			gWork.rndper = 100;//KUMA:必ず100%に初期化する
-			if (gWork.com.pnum > 0) gWork.rndper = gWork.com.prm[0];    //乱数確率を得る
+			if (gWork.com.pnum > 0) gWork.rndper = gWork.com.prm[0][0];    //乱数確率を得る
 			int i;
 			int y = -1;
 			for (i = 0; i <= x + 1; i++)
@@ -454,7 +458,7 @@ namespace M98DotNETcore
 		//0-xの数列を右へrotatedat回ローテートする
 		private void mk_rsprg(int x)
 		{
-			gWork.rotatedat = gWork.com.prm[0];       //ローテート係数の取得
+			gWork.rotatedat = gWork.com.prm[0][0];       //ローテート係数の取得
 			int a, i, y = 0;
 			int n = gWork.rotatedat;
 			if (x + 1 >= n) { a = (x + 1) - n; }
@@ -478,7 +482,7 @@ namespace M98DotNETcore
 		//0-xを左へn回ローテートする
 		private void mk_lsprg(int x)
 		{
-			gWork.rotatedat = gWork.com.prm[0];       //ローテート係数の取得
+			gWork.rotatedat = gWork.com.prm[0][0];       //ローテート係数の取得
 			int a, i, y = 0;
 			int n = gWork.rotatedat;
 			if (x >= n) { a = n; }

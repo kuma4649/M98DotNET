@@ -17,3 +17,4 @@ D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98Dot
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98DotNETcore.csproj.CopyComplete
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98DotNETcore.dll
 D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98DotNETcore.pdb
+D:\bootcamp\Source\Repos\M98DotNET\M98DotNETcore\obj\Debug\netstandard2.0\M98DotNETcore.csprojAssemblyReference.cache

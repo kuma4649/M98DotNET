@@ -528,7 +528,7 @@ namespace M98DotNETcore
 					case 25:
 						setmskext(); goto flgoff; //連符のマスク
 					case 26:
-						gWork.PTMMODE = gWork.com.prm[0]; break;    //ﾎﾟﾙﾀﾒﾝﾄﾓｰﾄﾞ
+						gWork.PTMMODE = gWork.com.prm[0][0]; break;    //ﾎﾟﾙﾀﾒﾝﾄﾓｰﾄﾞ
 					case 27:
 						gWork.com.call(ref a, ref aPtr); goto flgoff; //コマンドマージ(call)
 					case 28:
@@ -538,11 +538,13 @@ namespace M98DotNETcore
 					case 30:
 						comswitch(flag.ON); goto flgoff;
 					case 31:
-						gWork.LimitExCounter = gWork.wk.clk / gWork.com.prm[0]; goto flgoff;
+						gWork.LimitExCounter = gWork.wk.clk / gWork.com.prm[0][0]; goto flgoff;
 					case 32://プリザーブ
 						gWork.preserve = true;
 						gWork.preserveFlags = gWork.atr.Copy();
 						goto flgoff;
+					case 33:
+						s_grpPan(); goto flgoff;  //パングループ
 					case DEF.ERROR:
 						DEF.PF("\nコマンドが異常！->");
 						DEF.PF(b);
@@ -752,7 +754,8 @@ namespace M98DotNETcore
 			int vl = gWork.wk.vol;
 			int vi = gWork.wk.voi;
 			int kst = gWork.wk.kst;
-			int pa = gWork.wk.pan;
+			int pa1 = gWork.wk.pan[0];
+			int pa2 = gWork.wk.pan[1];
 			int clk = gWork.wk.clk;
 
 			int ptm = 0;
@@ -907,8 +910,16 @@ namespace M98DotNETcore
 							break;
 						case 'p':
 							adrPtr++;
-							pa = getpara(adr, ref adrPtr);
-							gWork.wk.pan = pa;
+							pa1 = getpara(adr, ref adrPtr);
+							gWork.wk.pan[0] = pa1;
+							pa2 = DEF.EMPTY;
+							adrPtr = SkipSpaceAndTab(adr, adrPtr);
+							if (adrPtr < adr.Length && adr[adrPtr] == ',')
+							{
+								adrPtr++;
+								pa2 = getpara(adr, ref adrPtr);
+								gWork.wk.pan[1] = pa2;
+							}
 							break;
 						case '\t':
 							adrPtr++;
@@ -983,7 +994,7 @@ namespace M98DotNETcore
 
 			//KUMA:プリザーブ向けTone情報更新
 			if (gWork.preserveTone == null) gWork.preserveTone = new TONE(flag.OFF, this);
-			gWork.preserveTone.puttone(nt, qt, ln, ot, vl, vi, tief, ptm, mac, pa, kst, clk, ex);
+			gWork.preserveTone.puttone(nt, qt, ln, ot, vl, vi, tief, ptm, mac, pa1, pa2, kst, clk, ex);
 
 			//KUMA:音符を見つけられなかった
 			if (endf == 0)
@@ -991,7 +1002,7 @@ namespace M98DotNETcore
 				return -1;
 			}
 
-			gWork.orgt[tnm].puttone(nt, qt, ln, ot, vl, vi, tief, ptm, mac, pa, kst, clk, ex);
+			gWork.orgt[tnm].puttone(nt, qt, ln, ot, vl, vi, tief, ptm, mac, pa1, pa2, kst, clk, ex);
 			return (adrPtr);       //次の音符のポインタを返す	
 		}
 
@@ -1180,7 +1191,11 @@ namespace M98DotNETcore
 
 		private void getcom(string a, ref int aPtr)
 		{
-			for (int i = 0; i < DEF.MAXCOMP; i++) gWork.com.prm[i] = 0;//コマンドパラメータの初期化
+			for (int i = 0; i < DEF.MAXCOMP; i++)
+			{
+				gWork.com.prm[0][i] = 0;//コマンドパラメータの初期化
+				gWork.com.prm[1][i] = 0;
+			}
 
 			//初期化
 			gWork.com.name = "";
@@ -1196,22 +1211,32 @@ namespace M98DotNETcore
 			}
 
 			//数値タイプのパラメータ取得
-			if (aPtr < a.Length && a[aPtr] == '(')
+			int index = 0;
+			while (aPtr < a.Length && a[aPtr] == '(')
 			{
-				if (gWork.com.name == "lgrp") 
+				if (gWork.com.name == "lgrp")
 				{
 					gWork.com.spnum = analyzeStringParam(a, ref aPtr, ')');
 				}
 				else
-					gWork.com.pnum = analyzeNumericParam(a, ref aPtr);
+					gWork.com.pnum = analyzeNumericParam(index, a, ref aPtr);
+
+				aPtr = SkipSpaceAndTab(a, aPtr);
+				index++;
 			}
+
+			aPtr = SkipSpaceAndTab(a, aPtr);
 
 			//文字タイプのパラメータ取得
 			if (aPtr < a.Length && a[aPtr] == '<') gWork.com.spnum = analyzeStringParam(a, ref aPtr);
 
+			aPtr = SkipSpaceAndTab(a, aPtr);
+
 			//switchの対象を取得
 			if (aPtr < a.Length && a[aPtr] == '-') analyzeSwitch(a, ref aPtr);
 			if (gWork.atr.allflgck() == 0) gWork.atr.allflgon(); //すべてのフラグがOFFなら、すべてONにする
+
+			aPtr = SkipSpaceAndTab(a, aPtr);
 
 			if (aPtr >= a.Length || a[aPtr] != ',')
 			{
@@ -1222,7 +1247,13 @@ namespace M98DotNETcore
 			aPtr++;
 		}
 
-		private int analyzeNumericParam(string a, ref int aPtr)
+		private int SkipSpaceAndTab(string a, int aPtr)
+		{
+			while (aPtr < a.Length && (a[aPtr] == ' ' || a[aPtr] == '\t')) aPtr++;
+			return aPtr;
+		}
+
+		private int analyzeNumericParam(int index,string a, ref int aPtr)
 		{
 			int y = 0;
 			char ch = a[++aPtr];
@@ -1235,7 +1266,7 @@ namespace M98DotNETcore
 					throw new M98Exception();
 				}
 
-				gWork.com.prm[y] = x; //set digit parameter
+				gWork.com.prm[index][y] = x; //set digit parameter
 				y++;
 
 				ch = a[aPtr];
@@ -1354,6 +1385,8 @@ namespace M98DotNETcore
 			gWork.wk.voi = gWork.cpyt[0].getvoi();
 			gWork.wk.kst = gWork.cpyt[0].getkst();
 			gWork.wk.clk = gWork.cpyt[0].getclk();
+			gWork.wk.pan[0] = gWork.cpyt[0].getpan(0);
+			gWork.wk.pan[1] = gWork.cpyt[0].getpan(1);
 
 			string tmp = "";
 			gWork.sndbuf2 = " ";
@@ -1373,12 +1406,19 @@ namespace M98DotNETcore
 			if (gWork.wk.vol != DEF.EMPTY) gWork.sndbuf2 += string.Format("v{0}", gWork.wk.vol);
 			if (gWork.wk.qtz != DEF.EMPTY) gWork.sndbuf2 += string.Format("q{0}", gWork.wk.qtz);
 			if (gWork.wk.voi != DEF.EMPTY) gWork.sndbuf2 += string.Format("@{0}", gWork.wk.voi);
-			if (gWork.wk.pan != DEF.EMPTY) gWork.sndbuf2 += string.Format("p{0}", gWork.wk.pan);
+			if (gWork.wk.pan[0] != DEF.EMPTY || ((gWork.wk.pan[0] > 3 && gWork.wk.pan[0] < 7) && gWork.wk.pan[1] != DEF.EMPTY))
+			{
+				gWork.sndbuf2 += string.Format("p{0}", gWork.wk.pan[0]);
+				if((gWork.wk.pan[0] > 3 && gWork.wk.pan[0] < 7) && gWork.wk.pan[1] != DEF.EMPTY)
+				{
+					gWork.sndbuf2 += string.Format(",{0}", gWork.wk.pan[1]);
+				}
+			}
 			if (gWork.wk.kst != DEF.EMPTY) gWork.sndbuf2 += string.Format("k{0}", gWork.wk.kst);
 			if (gWork.initf_vol == flag.ON && gWork.wk.vol == DEF.EMPTY) gWork.sndbuf2 += "v12";
 			if (gWork.initf_qtz == flag.ON && gWork.wk.qtz == DEF.EMPTY) gWork.sndbuf2 += "q0";
 			if (gWork.initf_voi == flag.ON && gWork.wk.voi == DEF.EMPTY) gWork.sndbuf2 += string.Format("@{0}", gWork.random.Next(256));
-			if (gWork.initf_pan == flag.ON && gWork.wk.pan == DEF.EMPTY) gWork.sndbuf2 += "p3";
+			if (gWork.initf_pan == flag.ON && gWork.wk.pan[0] == DEF.EMPTY) gWork.sndbuf2 += "p3";
 			if (gWork.initf_kst == flag.ON && gWork.wk.kst == DEF.EMPTY) gWork.sndbuf2 += "k0";
 			if (gWork.cpyt[0].getmac() != 0) gWork.sndbuf2 += string.Format("*{0}", gWork.cpyt[0].getmac());
 
@@ -1473,7 +1513,8 @@ namespace M98DotNETcore
 					prtoct(p);
 					if (p.getvol() != DEF.EMPTY) prtvol(p);
 					if (p.getvoi() != DEF.EMPTY) prtvoi(p);
-					if (p.getpan() != DEF.EMPTY) prtpan(p);
+					if (p.getpan(0) != DEF.EMPTY || ((p.getpan(0) > 3 && p.getpan(0) < 7) && p.getpan(1) != DEF.EMPTY))
+						prtpan(p);
 					if (p.getkst() != DEF.EMPTY) prtkst(p);
 					prtmac(p);
 					prtlen(p);
@@ -1575,14 +1616,30 @@ namespace M98DotNETcore
 
 		private void prtpan(TONE p)
 		{
-			int n = p.getpan();
-			if (n == DEF.EMPTY) return;
+			int n1 = p.getpan(0);
+			int n2 = p.getpan(1);
+			if (n1 == DEF.EMPTY || ((n1 > 3 && n1 < 7) && n2 == DEF.EMPTY)) return;
 
-			if (n != gWork.wk.pan)
+			if (n1 > 0 && n1 < 4)
 			{
-				comprt("p");
-				putvalue(n);
-				gWork.wk.pan = n;
+				if (n1 != gWork.wk.pan[0])
+				{
+					comprt("p");
+					putvalue(n1);
+				}
+
+				gWork.wk.pan[0] = n1;
+				gWork.wk.pan[1] = DEF.EMPTY;
+			}
+			else
+			{
+				if (n1 != gWork.wk.pan[0] || n2 != gWork.wk.pan[1])
+				{
+					gWork.sndbuf2 += string.Format("p{0},{1}", n1, n2);
+				}
+
+				gWork.wk.pan[0] = n1;
+				gWork.wk.pan[1] = n2;
 			}
 		}
 
@@ -1653,8 +1710,8 @@ namespace M98DotNETcore
 		//乱数フィルタセット
 		private void setrfil()
 		{
-			gWork.randmin = gWork.com.prm[0];
-			gWork.randmax = gWork.com.prm[1];
+			gWork.randmin = gWork.com.prm[0][0];
+			gWork.randmax = gWork.com.prm[0][1];
 			if (gWork.randmin > gWork.randmax)
 			{
 				int n = gWork.randmin;
@@ -1667,8 +1724,8 @@ namespace M98DotNETcore
 		//リピートセット
 		private void setrep()
 		{
-			gWork.rp.min = gWork.com.prm[0];
-			gWork.rp.max = gWork.com.prm[1];
+			gWork.rp.min = gWork.com.prm[0][0];
+			gWork.rp.max = gWork.com.prm[0][1];
 			if (gWork.rp.min > gWork.rp.max)
 			{
 				int n = gWork.rp.min;
@@ -1692,11 +1749,45 @@ namespace M98DotNETcore
 			int lp = gWork.com.pnum;
 			while (lp != 0 && i < DEF.MAXVOIGR)
 			{
-				gWork.grp.voi[i] = gWork.com.prm[i];
+				gWork.grp.voi[i] = gWork.com.prm[0][i];
 				i++; lp--;
 			}
 			gWork.voigrf = i;
 		}
+
+		//-----------------------------------------------------------------
+		//pグループセット
+		private void s_grpPan()
+		{
+			int i = 0;
+			int lp = gWork.com.pnum;
+			while (lp != 0 && i < DEF.MAXVOIGR)
+			{
+				gWork.grp.pan[0][i] = gWork.com.prm[0][i];
+				gWork.grp.pan[1][i] = gWork.com.prm[1][i];
+				i++; lp--;
+			}
+
+			gWork.pangrf = i;
+
+			//swap
+
+			if (gWork.grp.pan[0][0] > gWork.grp.pan[0][1])
+			{
+				i = gWork.grp.pan[0][0];
+				gWork.grp.pan[0][0]= gWork.grp.pan[0][1];
+				gWork.grp.pan[0][1] = i;
+			}
+
+			if (gWork.grp.pan[1][0] > gWork.grp.pan[1][1])
+			{
+				i = gWork.grp.pan[1][0];
+				gWork.grp.pan[1][0] = gWork.grp.pan[1][1];
+				gWork.grp.pan[1][1] = i;
+			}
+
+		}
+
 		//-----------------------------------------------------------------
 		//ｌグループセット
 		//private void s_grplen()
@@ -1744,7 +1835,7 @@ namespace M98DotNETcore
 			int lp, i;
 			for (lp = gWork.com.pnum, i = 0; (lp != 0) && (i < DEF.MAXMACGR); i++, lp--)
 			{
-				gWork.grp.mac[i] = gWork.com.prm[i];
+				gWork.grp.mac[i] = gWork.com.prm[0][i];
 			}
 			gWork.macgrf = i;
 		}
@@ -1831,7 +1922,7 @@ namespace M98DotNETcore
 			int i;
 			for (i = 0; (lp != 0) && (i < DEF.MAXQTZGR); i++)
 			{
-				gWork.grp.qtz[i] = gWork.com.prm[i];
+				gWork.grp.qtz[i] = gWork.com.prm[0][i];
 				lp--;
 			}
 			gWork.qtzgrf = i;
@@ -1845,7 +1936,7 @@ namespace M98DotNETcore
 			int i;
 			for (i = 0; (lp != 0) && (i < DEF.MAXKSTGR); i++, lp--)
 			{
-				gWork.grp.kst[i] = gWork.com.prm[i];
+				gWork.grp.kst[i] = gWork.com.prm[0][i];
 			}
 			gWork.kstgrf = i;
 		}
@@ -1858,7 +1949,7 @@ namespace M98DotNETcore
 			int i;
 			for (i = 0; (lp != 0) && (i < DEF.MAXEXTGR); i++, lp--)
 			{
-				gWork.grp.ext[i] = gWork.com.prm[i];
+				gWork.grp.ext[i] = gWork.com.prm[0][i];
 			}
 			gWork.extgrf = i;
 		}
@@ -1866,14 +1957,14 @@ namespace M98DotNETcore
 		//＠グループlineセット
 		private void s_voigrl()
 		{
-			int i = gWork.com.prm[0];
-			if (gWork.com.prm[0] > gWork.com.prm[1])
+			int i = gWork.com.prm[0][0];
+			if (gWork.com.prm[0][0] > gWork.com.prm[0][1])
 			{
-				gWork.com.prm[0] = gWork.com.prm[1];
-				gWork.com.prm[1] = i;
+				gWork.com.prm[0][0] = gWork.com.prm[0][1];
+				gWork.com.prm[0][1] = i;
 			}
 			int j = 0;
-			for (; i <= gWork.com.prm[1]; i++)
+			for (; i <= gWork.com.prm[0][1]; i++)
 			{
 				gWork.grp.voi[j] = i;
 				j++;
@@ -1890,14 +1981,14 @@ namespace M98DotNETcore
 		//マクログループlineセット
 		private void s_macgrl()
 		{
-			int i = gWork.com.prm[0];
-			if (gWork.com.prm[0] > gWork.com.prm[1])
+			int i = gWork.com.prm[0][0];
+			if (gWork.com.prm[0][0] > gWork.com.prm[0][1])
 			{
-				gWork.com.prm[0] = gWork.com.prm[1];
-				gWork.com.prm[1] = i;
+				gWork.com.prm[0][0] = gWork.com.prm[0][1];
+				gWork.com.prm[0][1] = i;
 			}
 			int j = 0;
-			for (; i <= gWork.com.prm[1]; i++)
+			for (; i <= gWork.com.prm[0][1]; i++)
 			{
 				gWork.grp.mac[j] = i;
 				j++;
@@ -1929,7 +2020,7 @@ namespace M98DotNETcore
 			int point = 0;// gWork.com.prm;       //マスクされるべきところ
 			for (int i = 1; i <= gWork.com.pnum; i++)
 			{
-				gWork.atr.putall(gWork.com.prm[point++], atrb.MASK); //マスク属性
+				gWork.atr.putall(gWork.com.prm[0][point++], atrb.MASK); //マスク属性
 			}
 		}
 		//-----------------------------------------------------------------
@@ -1941,8 +2032,8 @@ namespace M98DotNETcore
 			int mskstart, mskend;
 			for (int i = 1; i <= gWork.com.pnum / 2; i++)
 			{
-				mskstart = gWork.com.prm[p++];
-				mskend = gWork.com.prm[p++];
+				mskstart = gWork.com.prm[0][p++];
+				mskend = gWork.com.prm[0][p++];
 				if (mskstart > mskend)
 				{
 					int tmp = mskstart;
@@ -1968,7 +2059,7 @@ namespace M98DotNETcore
 				int p = 0;// gWork.com.prm;
 				for (int y = 1; y <= gWork.com.pnum; y++)
 				{
-					if (gWork.com.prm[p++] == i) flag = 1;
+					if (gWork.com.prm[0][p++] == i) flag = 1;
 				}
 				if (flag == 0) gWork.atr.putall(i, atrb.MASK);
 			}
@@ -1979,7 +2070,7 @@ namespace M98DotNETcore
 		{
 			if (gWork.com.pnum == 0) return;
 			qsort(
-				ref gWork.com.prm,
+				ref gWork.com.prm[0],
 				gWork.com.pnum,
 				//sizeof(int),       //com.prmを小から昇順に
 				cmpi
@@ -1991,8 +2082,8 @@ namespace M98DotNETcore
 				int p = 0;// gWork.com.prm;
 				for (int y = 1; y <= gWork.com.pnum / 2; y++)
 				{
-					int sst = gWork.com.prm[p++];
-					int send = gWork.com.prm[p++];
+					int sst = gWork.com.prm[0][p++];
+					int send = gWork.com.prm[0][p++];
 					if (sst <= i && send >= i) flag = 1;
 				}
 				if (flag == 0) gWork.atr.putall(i, atrb.MASK);
@@ -2033,7 +2124,7 @@ namespace M98DotNETcore
 					p = gWork.cpyt[i].extadr;
 					for (int y = 1; y < gWork.cpyt[i].getext(); y++)
 					{
-						int acc = gWork.random.Next(gWork.com.prm[0]) + 1;
+						int acc = gWork.random.Next(gWork.com.prm[0][0]) + 1;
 						int v = p.getvol() + acc;
 						if (v > 15) p.putvol(15);
 						else p.putvol(v);
@@ -2152,6 +2243,7 @@ namespace M98DotNETcore
 				{
 					newrqtz(i);
 				}
+
 				//音色
 				if (gWork.atr.getvoi(i) == atrb.DISABLE)
 				{
@@ -2228,10 +2320,12 @@ namespace M98DotNETcore
 				switch (gWork.atr.getpan(i))
 				{
 					case atrb.DISABLE:
-						gWork.cpyt[i].putpan(gWork.orgt[i].getpan());
+						gWork.cpyt[i].putpan(0, gWork.orgt[i].getpan(0));
+						gWork.cpyt[i].putpan(1, gWork.orgt[i].getpan(1));
 						break;
 					case atrb.CRAND:
-						gWork.cpyt[i].putpan(gWork.orgt[y].getpan());
+						gWork.cpyt[i].putpan(0, gWork.orgt[y].getpan(0));
+						gWork.cpyt[i].putpan(1, gWork.orgt[y].getpan(1));
 						break;
 					case atrb.RAND:
 						newrpan(i);
@@ -2484,20 +2578,44 @@ namespace M98DotNETcore
 		//新しい乱数パンを設定する
 		private void newrpan(int i)
 		{
+			int pan1;
+			int pan2;
+			int clk = Math.Max(Math.Min(gWork.wk.clk, 255), 1);
+
 			if (i != 0 && gWork.rp.c_pan != 0)
 			{
-				gWork.cpyt[i].putpan(gWork.cpyt[i - 1].getpan());
+				pan1 = gWork.cpyt[i - 1].getpan(0);
+				pan2 = gWork.cpyt[i - 1].getpan(1);
+				gWork.cpyt[i].putpan(0, pan1);
+				gWork.cpyt[i].putpan(1, pan2);
 				gWork.rp.c_pan--;
 				return;
 			}
 
-			gWork.cpyt[i].putpan(rndfil(7));// 0 ～ 6
+
+			if (gWork.pangrf != 0)
+			{
+				pan1 = gWork.random.Next(gWork.grp.pan[0][1] - gWork.grp.pan[0][0]) + gWork.grp.pan[0][0];
+				pan2 = gWork.random.Next(gWork.grp.pan[1][1] - gWork.grp.pan[1][0]) + gWork.grp.pan[1][0];
+				pan1 = Math.Max(Math.Min(pan1, 6), 1);
+				pan2 = Math.Max(Math.Min(pan2, clk), 1);
+				pan2 = (pan1 > 3 && pan1 < 7) ? pan2 : DEF.EMPTY;
+				gWork.cpyt[i].putpan(0, pan1);
+				gWork.cpyt[i].putpan(1, pan2);
+				gWork.rp.s_rep();
+				return;
+			}
+
+			pan1 = rndfil(6) + 1;// 1 ～ 6
+			pan2 = (pan1 > 3 && pan1 < 7) ? (rndfil(clk - 1) + 1) : DEF.EMPTY;
+			gWork.cpyt[i].putpan(0, pan1);
+			gWork.cpyt[i].putpan(1, pan2);
 			gWork.rp.s_rep();
 
 		}
 
 		//------------------------------------------------------------------
-		//新しい乱数パンを設定する
+		//新しい乱数clkを設定する
 		private void newrclk(int i)
 		{
 			if (i != 0 && gWork.rp.c_clk != 0)
