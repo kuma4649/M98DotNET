@@ -893,7 +893,8 @@ namespace M98DotNETcore
 							break;
 						case 'C':
 							adrPtr++;
-							gWork.wk.clk = getpara(adr, ref adrPtr);
+							clk = getpara(adr, ref adrPtr);
+							gWork.wk.clk = clk;
 							break;
 						case 'o':
 							adrPtr++;
@@ -2580,7 +2581,7 @@ namespace M98DotNETcore
 		{
 			int pan1;
 			int pan2;
-			int clk = Math.Max(Math.Min(gWork.wk.clk, 255), 1);
+			int clk = 255;// Math.Max(Math.Min(gWork.wk.clk, 255), 1);
 
 			if (i != 0 && gWork.rp.c_pan != 0)
 			{
@@ -2607,7 +2608,7 @@ namespace M98DotNETcore
 			}
 
 			pan1 = rndfil(6) + 1;// 1 ～ 6
-			pan2 = (pan1 > 3 && pan1 < 7) ? (rndfil(clk - 1) + 1) : DEF.EMPTY;
+			pan2 = (pan1 > 3 && pan1 < 7) ? (rndfil(clk - 1) + 1) : DEF.EMPTY;//1～255
 			gWork.cpyt[i].putpan(0, pan1);
 			gWork.cpyt[i].putpan(1, pan2);
 			gWork.rp.s_rep();

@@ -39,7 +39,7 @@ namespace M98DotNETcore
             nte = 0;
             oct = 4;
             len = 6;
-            clk = 96;
+            clk = 128;
             msl = 255;
             qtz = DEF.EMPTY;
             vol = DEF.EMPTY;
