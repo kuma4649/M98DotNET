@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>M98DotNET</AssemblyName>
+    <RootNamespace>M98DotNET</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\M98DotNETcore\atrb.cs" Link="atrb.cs" />
+    <Compile Include="..\M98DotNETcore\attrib.cs" Link="attrib.cs" />
+    <Compile Include="..\M98DotNETcore\command.cs" Link="command.cs" />
+    <Compile Include="..\M98DotNETcore\Common.cs" Link="Common.cs" />
+    <Compile Include="..\M98DotNETcore\compw.cs" Link="compw.cs" />
+    <Compile Include="..\M98DotNETcore\DEF.cs" Link="DEF.cs" />
+    <Compile Include="..\M98DotNETcore\flag.cs" Link="flag.cs" />
+    <Compile Include="..\M98DotNETcore\flgdat.cs" Link="flgdat.cs" />
+    <Compile Include="..\M98DotNETcore\grp_prm.cs" Link="grp_prm.cs" />
+    <Compile Include="..\M98DotNETcore\gWork.cs" Link="gWork.cs" />
+    <Compile Include="..\M98DotNETcore\iEncoding.cs" Link="iEncoding.cs" />
+    <Compile Include="..\M98DotNETcore\linedat.cs" Link="linedat.cs" />
+    <Compile Include="..\M98DotNETcore\M98.cs" Link="M98.cs" />
+    <Compile Include="..\M98DotNETcore\M98Exception.cs" Link="M98Exception.cs" />
+    <Compile Include="..\M98DotNETcore\MMLDAT.cs" Link="MMLDAT.cs" />
+    <Compile Include="..\M98DotNETcore\myEncoding.cs" Link="myEncoding.cs" />
+    <Compile Include="..\M98DotNETcore\repval.cs" Link="repval.cs" />
+    <Compile Include="..\M98DotNETcore\strpm.cs" Link="strpm.cs" />
+    <Compile Include="..\M98DotNETcore\STRPRM.cs" Link="STRPRM.cs" />
+    <Compile Include="..\M98DotNETcore\TONE.cs" Link="TONE.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="musicDriverInterface">
+      <HintPath>musicDriverInterface.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
